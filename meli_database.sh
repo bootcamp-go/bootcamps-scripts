@@ -65,20 +65,20 @@ get_mysql_root_password() {
 create_database() {
     get_mysql_root_password
     echo -e "${Blue}Creating database ${MYSQL_DATABASE}${NC}"
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
-    mysql -u root -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE < db.sql
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASS'"
-	mysql -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON * . * TO '$MYSQL_USER'@'localhost'"
-	mysql -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES"
+    mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
+    mysql -u root -p$1 $MYSQL_DATABASE < db.sql
+    mysql -u root -p$1 -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASS'"
+	mysql -u root -p$1 -e "GRANT ALL PRIVILEGES ON * . * TO '$MYSQL_USER'@'localhost'"
+	mysql -u root -p$1 -e "FLUSH PRIVILEGES"
 }
 
 rebuild_database() {
     get_mysql_root_password
     echo -e "${Blue}Rebuilding database ${MYSQL_DATABASE}...${NC}"
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE"
-	mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
-	mysql -u root -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE < db.sql
-	mysql -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES"
+    mysql -u root -p$1 -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE"
+	mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
+	mysql -u root -p$1 $MYSQL_DATABASE < db.sql
+	mysql -u root -p$1 -e "FLUSH PRIVILEGES"
 }
 
 main() {
@@ -86,13 +86,13 @@ main() {
     check_mysql_running
     # if argument is "create" then create the database and if its "rebuild" then rebuild the database
     if [ "$1" = "create" ]; then
-        create_database
+        create_database $2
     elif [ "$1" = "rebuild" ]; then
-        rebuild_database
+        rebuild_database $2
     else
         echo -e "${Red}Invalid argument.${NC}"
         echo -e "${Blue}Usage: ./build_meli_database.sh [create|rebuild]${NC}"
     fi
 }
 
-main $1
+main $1 $2
