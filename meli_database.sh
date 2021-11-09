@@ -44,13 +44,6 @@ install_mysql() {
    check_mysql_running
 }
 
-# Get the mysql root password from the user
-get_mysql_root_password() {
-    echo "Please enter the mysql root password"
-    read MYSQL_ROOT_PASSWORD;
-    echo
-}
-
 # Create user
 create_user() {
     echo -e "${Green}Creating user...${NC}"
@@ -61,7 +54,6 @@ create_user() {
 
 # Use the mysql root password to create the database
 create_database() {
-    get_mysql_root_password
     echo -e "${Blue}Creating database ${MYSQL_DATABASE}${NC}"
     mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
     mysql -u root -p$1 $MYSQL_DATABASE < db.sql
@@ -69,7 +61,6 @@ create_database() {
 }
 
 rebuild_database() {
-    get_mysql_root_password
     echo -e "${Blue}Rebuilding database ${MYSQL_DATABASE}...${NC}"
     mysql -u root -p$1 -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE"
 	mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
