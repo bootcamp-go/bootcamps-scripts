@@ -84,7 +84,6 @@ rebuild_database() {
 main() {
     check_mysql_installed
     check_mysql_running
-    
     # if argument is "create" then create the database and if its "rebuild" then rebuild the database
     if [ "$1" = "create" ]; then
         create_database
@@ -96,4 +95,4 @@ main() {
     fi
 }
 
-main
+main $1
