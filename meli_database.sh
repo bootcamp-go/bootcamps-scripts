@@ -1,7 +1,7 @@
 #!/bin/sh
 
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-""}
-MYSQL_DATABASE="test"
+MYSQL_DATABASE="melisprint"
 MYSQL_USER="meli_sprint_user"
 MYSQL_PASS="Meli_Sprint#123"
 # ANSI colors variables for shell scripts
