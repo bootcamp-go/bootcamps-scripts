@@ -57,7 +57,7 @@ install_mysql() {
 # Get the mysql root password from the user
 get_mysql_root_password() {
     echo "Please enter the mysql root password"
-    read MYSQL_ROOT_PASSWORD
+    read MYSQL_ROOT_PASSWORD;
     echo
 }
 
