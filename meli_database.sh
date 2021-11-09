@@ -5,23 +5,13 @@ MYSQL_DATABASE="melisprint"
 MYSQL_USER="meli_sprint_user"
 MYSQL_PASS="Meli_Sprint#123"
 # ANSI colors variables for shell scripts
-    Black='\E[0;30m'
     Red='\E[0;31m'
     Green='\E[0;32m'
     Yellow='\E[0;33m'
     Blue='\E[0;34m'
-    Purple='\E[0;35m'
     Cyan='\E[0;36m'
     White='\E[0;37m'
     Grey='\E[0;37m'
-    LightGrey='\E[0;37m'
-    LightRed='\E[1;31m'
-    LightGreen='\E[1;32m'
-    LightYellow='\E[1;33m'
-    LightBlue='\E[1;34m'
-    LightPurple='\E[1;35m'
-    LightCyan='\E[1;36m'
-    LightWhite='\E[1;37m'
     NC='\E[0m'
 
 # Check if mysql is currently running
@@ -87,11 +77,13 @@ main() {
     # if argument is "create" then create the database and if its "rebuild" then rebuild the database
     if [ "$1" = "create" ]; then
         create_database $2
+        echo -e "${Green}Database created successfully.${NC}"
     elif [ "$1" = "rebuild" ]; then
         rebuild_database $2
+        echo -e "${Green}Database rebuilt successfully.${NC}"
     else
         echo -e "${Red}Invalid argument.${NC}"
-        echo -e "${Blue}Usage: ./build_meli_database.sh [create|rebuild]${NC}"
+        echo -e "${Yellow}Usage: ./build_meli_database.sh [create|rebuild]${NC}"
     fi
 }
 
