@@ -1,18 +1,18 @@
 #!/bin/sh
 
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-""}
-MYSQL_DATABASE="melisprint"
-MYSQL_USER="meli_sprint_user"
-MYSQL_PASS="Meli_Sprint#123"
+MYSQL_DATABASE="testing_db"
+MYSQL_USER="test_db_user"
+MYSQL_PASS="Test_DB#123"
 # ANSI colors variables for shell scripts
-    Red='\E[0;31m'
-    Green='\E[0;32m'
-    Yellow='\E[0;33m'
-    Blue='\E[0;34m'
-    Cyan='\E[0;36m'
-    White='\E[0;37m'
-    Grey='\E[0;37m'
-    NC='\E[0m'
+    Red='\033[0;31m'
+    Green='\033[0;32m'
+    Yellow='\033[0;33m'
+    Blue='\033[0;34m'
+    Cyan='\033[0;36m'
+    White='\033[0;37m'
+    Grey='\033[0;37m'
+    NC='\033[0m'
 
 # Check if mysql is currently running
 check_mysql_running() {
@@ -25,7 +25,7 @@ check_mysql_running() {
 # Start mysql
 start_mysql() {
     echo -e "${Green}Starting mysql...${NC}"
-    sudo service mysql start
+    mysql.server start
 }
 
 
@@ -47,38 +47,70 @@ install_mysql() {
 # Create user
 create_user() {
     echo -e "${Green}Creating user...${NC}"
-    mysql -u root -p$1 -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASS'"
-	mysql -u root -p$1 -e "GRANT ALL PRIVILEGES ON * . * TO '$MYSQL_USER'@'localhost'"
-	mysql -u root -p$1 -e "FLUSH PRIVILEGES"
+    if [ -z "$1" ]; then
+        mysql -u root -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASS'"
+	    mysql -u root -e "GRANT ALL PRIVILEGES ON * . * TO '$MYSQL_USER'@'localhost'"
+	    mysql -u root -e "FLUSH PRIVILEGES"
+    else
+        mysql -u root -p$1 -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASS'"
+	    mysql -u root -p$1 -e "GRANT ALL PRIVILEGES ON * . * TO '$MYSQL_USER'@'localhost'"
+	    mysql -u root -p$1 -e "FLUSH PRIVILEGES"
+    fi
 }
 
 # Use the mysql root password to create the database
 create_database() {
     echo -e "${Blue}Creating database ${MYSQL_DATABASE}${NC}"
-    mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
-    mysql -u root -p$1 $MYSQL_DATABASE < db.sql
+    if [ -z "$1" ]; then
+        mysql -u root -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
+        mysql -u root $MYSQL_DATABASE < db.sql
+    else
+        mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
+        mysql -u root -p$1 $MYSQL_DATABASE < db.sql
+    fi
     create_user $1
 }
 
 rebuild_database() {
     echo -e "${Blue}Rebuilding database ${MYSQL_DATABASE}...${NC}"
-    mysql -u root -p$1 -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE"
-	mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
-	mysql -u root -p$1 $MYSQL_DATABASE < db.sql
-	mysql -u root -p$1 -e "FLUSH PRIVILEGES"
+    if [  -z "$1" ]; then
+        mysql -u root -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE"
+	    mysql -u root -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
+	    mysql -u root $MYSQL_DATABASE < db.sql
+	    mysql -u root -e "FLUSH PRIVILEGES"
+    else
+        mysql -u root -p$1 -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE"
+	    mysql -u root -p$1 -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE"
+	    mysql -u root -p$1 $MYSQL_DATABASE < db.sql
+	    mysql -u root -p$1 -e "FLUSH PRIVILEGES"
+    fi
 }
 
 test_database_creation() {
-    if [ -z "$(mysql -u root -p$1 -e "SHOW DATABASES LIKE '$MYSQL_DATABASE'" | grep $MYSQL_DATABASE)" ]; then
-        echo -e "${Red}Database $MYSQL_DATABASE was not created, retrying${NC}"
-        create_database $1
+    if [  -z "$1" ]; then
+        if [ -z "$(mysql -u root -e "SHOW DATABASES LIKE '$MYSQL_DATABASE'" | grep $MYSQL_DATABASE)" ]; then
+            echo -e "${Red}Database $MYSQL_DATABASE was not created, retrying${NC}"
+            create_database $1
+        fi
+    else
+        if [ -z "$(mysql -u root -p$1 -e "SHOW DATABASES LIKE '$MYSQL_DATABASE'" | grep $MYSQL_DATABASE)" ]; then
+            echo -e "${Red}Database $MYSQL_DATABASE was not created, retrying${NC}"
+            create_database $1
+        fi
     fi
 }
 
 test_user_creation() {
-    if [ -z "$(mysql -u root -p$1 -e "SELECT User FROM mysql.user WHERE User = '$MYSQL_USER'" | grep $MYSQL_USER)" ]; then
-        echo -e "${Red}User $MYSQL_USER was not created, retrying${NC}"
-        create_user $1
+    if [  -z "$1" ]; then
+        if [ -z "$(mysql -u root -e "SELECT User FROM mysql.user WHERE User = '$MYSQL_USER'" | grep $MYSQL_USER)" ]; then
+            echo -e "${Red}User $MYSQL_USER was not created, retrying${NC}"
+            create_user $1
+        fi
+    else
+        if [ -z "$(mysql -u root -p$1 -e "SELECT User FROM mysql.user WHERE User = '$MYSQL_USER'" | grep $MYSQL_USER)" ]; then
+            echo -e "${Red}User $MYSQL_USER was not created, retrying${NC}"
+            create_user $1
+        fi
     fi
 }
 
