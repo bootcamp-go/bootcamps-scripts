@@ -124,6 +124,7 @@ main() {
         test_user_creation $2
         echo -e "${Green}Database created successfully.${NC}"
     elif [ "$1" = "rebuild" ]; then
+    	test_user_creation $2
         rebuild_database $2
         echo -e "${Green}Database rebuilt successfully.${NC}"
     else
